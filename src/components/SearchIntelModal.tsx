@@ -11,6 +11,7 @@ import {
   Info
 } from 'lucide-react';
 import { IntelResult } from '../types';
+import { searchIntelAi } from '../services/aiService';
 
 interface SearchIntelModalProps {
   isOpen: boolean;
@@ -48,14 +49,7 @@ export const SearchIntelModal: React.FC<SearchIntelModalProps> = ({
     setLoading(true);
 
     try {
-      const resp = await fetch('/api/search-intel', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: searchTerm.trim(), platform })
-      });
-
-      if (!resp.ok) throw new Error('Search failed');
-      const data = await resp.json();
+      const data = await searchIntelAi(searchTerm.trim(), platform);
       setResult(data);
     } catch (e) {
       console.error('Search error:', e);

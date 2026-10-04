@@ -15,6 +15,7 @@ import { AiChatTab } from './components/AiChatTab';
 import { defaultProject } from './defaultProject';
 import { Project, Diagnostic } from './types';
 import { BookOpen, Sparkles, X, ChevronRight } from 'lucide-react';
+import { generateProjectAi, analyzeCodeAi } from './services/aiService';
 
 export default function App() {
   const [project, setProject] = useState<Project>(defaultProject);
@@ -31,18 +32,8 @@ export default function App() {
   useEffect(() => {
     const timer = setTimeout(async () => {
       try {
-        const resp = await fetch('/api/analyze-code', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            code: project.code,
-            platform: project.targetPlatform,
-          }),
-        });
-        if (resp.ok) {
-          const data = await resp.json();
-          setDiagnostics(data.diagnostics || []);
-        }
+        const diags = await analyzeCodeAi(project.code, project.targetPlatform);
+        setDiagnostics(diags || []);
       } catch (err) {
         console.error('Linter error:', err);
       }
@@ -71,14 +62,7 @@ export default function App() {
   const handleGenerate = async (prompt: string, platform: string, domain: string) => {
     setIsGenerating(true);
     try {
-      const resp = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, platform, domain }),
-      });
-
-      if (!resp.ok) throw new Error('Generation failed');
-      const data = await resp.json();
+      const data = await generateProjectAi({ prompt, platform, domain });
       setProject(data);
       setIsGeneratorOpen(false);
     } catch (err) {

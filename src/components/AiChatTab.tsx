@@ -20,6 +20,7 @@ import {
   Search
 } from 'lucide-react';
 import { Project, ChatMessage } from '../types';
+import { sendChatMessage } from '../services/aiService';
 
 interface AiChatTabProps {
   project: Project;
@@ -89,20 +90,13 @@ I am your interactive embedded systems C++ and electronics companion powered by 
     setLoading(true);
 
     try {
-      const resp = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [...messages, userMsg],
-          currentProject: project,
-          model: selectedModel,
-          role: selectedRole,
-          useSearchGrounding
-        })
+      const data = await sendChatMessage({
+        messages: [...messages, userMsg],
+        currentProject: project,
+        model: selectedModel,
+        role: selectedRole,
+        useSearchGrounding
       });
-
-      if (!resp.ok) throw new Error('Chat failed');
-      const data = await resp.json();
 
       const assistantMsg: ChatMessage = {
         id: (Date.now() + 1).toString(),
@@ -123,7 +117,7 @@ I am your interactive embedded systems C++ and electronics companion powered by 
         {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
-          content: 'Error communicating with VoltStar Gemini AI. Please check your connection and try again.',
+          content: 'Unable to process request. Please try again.',
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         }
       ]);
