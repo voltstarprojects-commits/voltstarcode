@@ -76,8 +76,8 @@ export const GeneratorModal: React.FC<GeneratorModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-150">
-      <div className="relative w-full max-w-2xl bg-[#0a101f] border border-blue-500/40 rounded-2xl shadow-2xl overflow-hidden text-slate-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-150">
+      <div className="relative w-full max-w-2xl bg-[#0a101f] border border-blue-500/40 rounded-2xl shadow-2xl overflow-y-auto max-h-[92dvh] text-slate-200">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 bg-[#060a14] border-b border-slate-800">
           <div className="flex items-center space-x-3">

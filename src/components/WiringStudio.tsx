@@ -128,66 +128,69 @@ export const WiringStudio: React.FC<WiringStudioProps> = ({ project }) => {
   return (
     <div className="flex flex-col h-full bg-[#070b16] text-slate-200">
       {/* Subtab Navigation Bar */}
-      <div className="h-10 bg-[#050812] border-b border-blue-950/60 flex items-center justify-between px-3 text-xs select-none">
-        <div className="flex items-center space-x-1">
+      <div className="h-10 bg-[#050812] border-b border-blue-950/60 flex items-center justify-between px-2 sm:px-3 text-xs select-none">
+        <div className="flex items-center space-x-1 overflow-x-auto no-scrollbar flex-1 py-1">
           <button
             onClick={() => setActiveTab('schematic')}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-t-lg transition-colors border-b-2 ${
+            className={`flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-t-lg transition-colors border-b-2 whitespace-nowrap flex-shrink-0 ${
               activeTab === 'schematic'
                 ? 'bg-[#0b1324] text-cyan-300 border-cyan-400 font-semibold'
                 : 'text-slate-400 hover:text-slate-200 border-transparent'
             }`}
           >
             <Layers className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Interactive Schematic</span>
+            <span className="hidden sm:inline">Interactive Schematic</span>
+            <span className="sm:hidden">Schematic</span>
           </button>
 
           <button
             onClick={() => setActiveTab('checklist')}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-t-lg transition-colors border-b-2 ${
+            className={`flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-t-lg transition-colors border-b-2 whitespace-nowrap flex-shrink-0 ${
               activeTab === 'checklist'
                 ? 'bg-[#0b1324] text-cyan-300 border-cyan-400 font-semibold'
                 : 'text-slate-400 hover:text-slate-200 border-transparent'
             }`}
           >
             <CheckSquare className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Beginner Wiring Checklist</span>
+            <span className="hidden sm:inline">Beginner Wiring Checklist</span>
+            <span className="sm:hidden">Checklist</span>
           </button>
 
           <button
             onClick={() => setActiveTab('pinout')}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-t-lg transition-colors border-b-2 ${
+            className={`flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-t-lg transition-colors border-b-2 whitespace-nowrap flex-shrink-0 ${
               activeTab === 'pinout'
                 ? 'bg-[#0b1324] text-blue-300 border-blue-400 font-semibold'
                 : 'text-slate-400 hover:text-slate-200 border-transparent'
             }`}
           >
             <ListTree className="w-3.5 h-3.5 text-blue-400" />
-            <span>Pinout Table</span>
+            <span>Pinout</span>
           </button>
 
           <button
             onClick={() => setActiveTab('bom')}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-t-lg transition-colors border-b-2 ${
+            className={`flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-t-lg transition-colors border-b-2 whitespace-nowrap flex-shrink-0 ${
               activeTab === 'bom'
                 ? 'bg-[#0b1324] text-sky-300 border-sky-400 font-semibold'
                 : 'text-slate-400 hover:text-slate-200 border-transparent'
             }`}
           >
             <Package className="w-3.5 h-3.5 text-sky-400" />
-            <span>Hardware BOM ({project.bom.length})</span>
+            <span>BOM ({project.bom.length})</span>
           </button>
 
           <button
             onClick={() => setActiveTab('gotchas')}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-t-lg transition-colors border-b-2 ${
+            className={`flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-t-lg transition-colors border-b-2 whitespace-nowrap flex-shrink-0 ${
               activeTab === 'gotchas'
                 ? 'bg-[#0b1324] text-rose-300 border-rose-400 font-semibold'
                 : 'text-slate-400 hover:text-slate-200 border-transparent'
             }`}
           >
             <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
-            <span>Safety Gotchas</span>
+            <span className="hidden sm:inline">Safety Gotchas</span>
+            <span className="sm:hidden">Gotchas</span>
           </button>
         </div>
 
@@ -228,7 +231,7 @@ export const WiringStudio: React.FC<WiringStudioProps> = ({ project }) => {
       <div className="flex-1 overflow-auto relative">
         {/* TAB 1: INTERACTIVE SCHEMATIC */}
         {activeTab === 'schematic' && (
-          <div className="flex flex-col h-full bg-schematic-grid relative overflow-hidden">
+          <div className="flex flex-col h-full bg-schematic-grid relative overflow-auto touch-pan-x touch-pan-y">
             {/* Beginner Quick Helper Strip */}
             <div className="bg-[#091122]/95 backdrop-blur border-b border-blue-900/50 px-4 py-2 flex items-center justify-between text-xs z-10 flex-wrap gap-2">
               <div className="flex items-center space-x-2">
@@ -261,57 +264,57 @@ export const WiringStudio: React.FC<WiringStudioProps> = ({ project }) => {
             </div>
 
             {/* Live Interactive Hardware Simulation Bar */}
-            <div className="bg-[#080d1a]/90 backdrop-blur border-b border-blue-950/70 px-4 py-2 flex items-center justify-between text-xs z-10">
+            <div className="bg-[#080d1a]/90 backdrop-blur border-b border-blue-950/70 px-3 py-2 flex items-center justify-between text-xs z-10 flex-wrap gap-2">
               <div className="flex items-center space-x-2">
-                <Sliders className="w-3.5 h-3.5 text-cyan-400" />
-                <span className="font-semibold text-slate-200">Test Circuit in Real Time:</span>
-                <span className={`text-[10px] px-2 py-0.5 rounded font-semibold ${
+                <Sliders className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" />
+                <span className="font-semibold text-slate-200 text-xs">Live Simulation:</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded font-semibold ${
                   isObstacle ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
                 }`}>
-                  {isObstacle ? 'OBSTACLE DETECTED (<20cm) 🛑' : 'ROVER CRUISING ✓'}
+                  {isObstacle ? 'ALERT 🛑' : 'CLEAR ✓'}
                 </span>
               </div>
 
-              <div className="flex items-center space-x-6">
+              <div className="flex items-center flex-wrap gap-3 sm:gap-6">
                 {/* Distance Slider */}
-                <div className="flex items-center space-x-2">
-                  <span className="text-[11px] text-slate-400">Ultrasonic Distance:</span>
+                <div className="flex items-center space-x-1.5">
+                  <span className="text-[10px] sm:text-[11px] text-slate-400">Distance:</span>
                   <input
                     type="range"
                     min="5"
                     max="100"
                     value={simDistance}
                     onChange={(e) => setSimDistance(parseInt(e.target.value))}
-                    className="w-24 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+                    className="w-20 sm:w-24 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
                   />
-                  <span className="font-mono text-cyan-300 text-xs w-8 text-right font-bold">{simDistance}cm</span>
+                  <span className="font-mono text-cyan-300 text-xs w-7 text-right font-bold">{simDistance}cm</span>
                 </div>
 
                 {/* Analog Slider */}
-                <div className="flex items-center space-x-2">
-                  <span className="text-[11px] text-slate-400">Analog (A0):</span>
+                <div className="flex items-center space-x-1.5">
+                  <span className="text-[10px] sm:text-[11px] text-slate-400">Analog (A0):</span>
                   <input
                     type="range"
                     min="0"
                     max="1023"
                     value={simAnalog}
                     onChange={(e) => setSimAnalog(parseInt(e.target.value))}
-                    className="w-20 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-400"
+                    className="w-16 sm:w-20 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-400"
                   />
-                  <span className="font-mono text-blue-300 text-xs w-12 text-right">{((simAnalog / 1023) * 5).toFixed(2)}V</span>
+                  <span className="font-mono text-blue-300 text-xs w-10 text-right">{((simAnalog / 1023) * 5).toFixed(1)}V</span>
                 </div>
               </div>
             </div>
 
             {/* SVG Interactive Canvas */}
-            <div className="flex-1 overflow-auto p-4 flex items-center justify-center">
+            <div className="flex-1 overflow-auto p-2 sm:p-4 touch-pan-x touch-pan-y">
               <div
                 style={{
                   transform: `scale(${zoomLevel})`,
-                  transformOrigin: 'top center',
+                  transformOrigin: 'top left',
                   transition: 'transform 0.15s ease-out'
                 }}
-                className="relative w-[860px] h-[640px] select-none"
+                className="relative w-[860px] h-[640px] select-none mx-auto"
               >
                 <svg
                   className="w-full h-full"

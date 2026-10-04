@@ -31,7 +31,7 @@ export const BuildConsole: React.FC<BuildConsoleProps> = ({
   onRunCompile,
   onApplyFix
 }) => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(() => typeof window !== 'undefined' ? window.innerWidth >= 1024 : false);
   const [activeTab, setActiveTab] = useState<'compiler' | 'serial' | 'diagnostics'>('compiler');
   const [serialLogs, setSerialLogs] = useState<string[]>([
     `[00:00:01.002] ⚡ VoltStar Code - Serial Console Connected (115200 baud)`,
@@ -117,7 +117,8 @@ export const BuildConsole: React.FC<BuildConsoleProps> = ({
             }`}
           >
             <Terminal className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Virtual Build Console</span>
+            <span className="hidden sm:inline">Virtual Build Console</span>
+            <span className="sm:hidden">Terminal</span>
           </button>
 
           <button
@@ -125,15 +126,16 @@ export const BuildConsole: React.FC<BuildConsoleProps> = ({
               setActiveTab('serial');
               if (!isOpen) setIsOpen(true);
             }}
-            className={`flex items-center space-x-1.5 px-3 py-1 rounded transition-colors ${
+            className={`flex items-center space-x-1.5 px-2 sm:px-3 py-1 rounded transition-colors ${
               activeTab === 'serial' && isOpen
                 ? 'bg-[#0e1629] text-cyan-300 font-semibold border-b-2 border-cyan-400'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             <Radio className="w-3.5 h-3.5 text-blue-400" />
-            <span>Live Serial Monitor</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse ml-1" />
+            <span className="hidden sm:inline">Live Serial Monitor</span>
+            <span className="sm:hidden">Serial</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse ml-0.5 sm:ml-1" />
           </button>
 
           <button
@@ -141,14 +143,15 @@ export const BuildConsole: React.FC<BuildConsoleProps> = ({
               setActiveTab('diagnostics');
               if (!isOpen) setIsOpen(true);
             }}
-            className={`flex items-center space-x-1.5 px-3 py-1 rounded transition-colors ${
+            className={`flex items-center space-x-1.5 px-2 sm:px-3 py-1 rounded transition-colors ${
               activeTab === 'diagnostics' && isOpen
                 ? 'bg-[#0e1629] text-rose-300 font-semibold border-b-2 border-rose-400'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
             <AlertTriangle className={`w-3.5 h-3.5 ${hasErrors ? 'text-rose-400' : hasWarnings ? 'text-amber-400' : 'text-slate-400'}`} />
-            <span>Diagnostics ({diagnostics.length})</span>
+            <span className="hidden sm:inline">Diagnostics ({diagnostics.length})</span>
+            <span className="sm:hidden">Issues ({diagnostics.length})</span>
           </button>
         </div>
 
@@ -196,7 +199,7 @@ export const BuildConsole: React.FC<BuildConsoleProps> = ({
 
       {/* Console Body Area */}
       {isOpen && (
-        <div className="h-44 overflow-hidden flex flex-col font-mono-code text-xs bg-[#04060e]">
+        <div className="h-32 sm:h-44 max-h-[35vh] overflow-hidden flex flex-col font-mono-code text-xs bg-[#04060e]">
           {/* TAB 1: BUILD / COMPILER CONSOLE */}
           {activeTab === 'compiler' && (
             <div className="p-3 overflow-y-auto flex-1 space-y-2 select-text">

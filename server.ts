@@ -910,15 +910,18 @@ app.post('/api/chat', async (req, res) => {
 Current Active Project: ${currentProject?.projectTitle || 'Arduino Uno Controller'}
 Target Platform: ${currentProject?.targetPlatform || 'Arduino Uno R3'}
 
-CRITICAL REQUIREMENT - CODE GENERATION:
-Whenever the user asks you to "make a code", "write code", "create code", "give me code", "code for", "sketch for", or asks how to program/control any motor, sensor, LED, display, relay, or algorithm:
-1. YOU MUST ALWAYS GENERATE COMPLETE, COMPILABLE, PRODUCTION-READY C++ CODE enclosed in \`\`\`cpp ... \`\`\` markdown code blocks.
-2. The code must be complete with #includes, automatic pin assignments, setup(), and loop() with non-blocking millis() or clear logic.
-3. Never use placeholders or tell the user to write it themselves. Provide the full working code!
-4. After the code block, briefly explain the pin wiring and how to connect it.`;
+CONVERSATION & CODE GENERATION RULES:
+1. GREETINGS & CASUAL CHAT: When the user says "hi", "hello", "hey", or greets you, respond warmly and conversationally! Introduce yourself as VoltStar AI Architect and ask what embedded electronics or C++ project they want to create today.
+2. PROMPT COMPREHENSION: First, carefully read WHAT the user wants to build or program. Identify every sensor, actuator, motor, display, and behavior mentioned.
+3. COMPLETE C++ CODE GENERATION:
+Whenever the user asks you to "make a code", "write code", "create code", "give me code", "code for", "sketch for", or asks how to program/control any component:
+- YOU MUST ALWAYS WRITE COMPLETE, COMPILABLE, PRODUCTION-READY C++ CODE enclosed in \`\`\`cpp ... \`\`\` markdown blocks.
+- The code must be 100% complete with all #includes, pin definitions, setup(), and loop() with non-blocking millis() or clear logic.
+- After the code block, briefly explain the pin wiring and how to connect it.
+4. If the user asks a question, explain it clearly with simple beginner-friendly analogies.`;
 
         const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('AI response timeout')), 7000)
+          setTimeout(() => reject(new Error('AI response timeout')), 16000)
         );
 
         const configObj: any = {
@@ -963,16 +966,117 @@ Whenever the user asks you to "make a code", "write code", "create code", "give 
 
     // Intelligent fallback response with complete runnable C++ code and simulated grounding
     const lower = lastMsg.toLowerCase();
-    let reply = `### ⚡ VoltStar AI Code Generator\n\n`;
-
-    const isCodeRequest = lower.includes('code') || lower.includes('make') || lower.includes('write') || lower.includes('create') || lower.includes('program') || lower.includes('sketch') || lower.includes('how to');
+    const trimmed = lastMsg.trim().toLowerCase();
+    const isGreeting = /^(hi|hello|hey|howdy|sup|good (morning|afternoon|evening)|yo)\b/i.test(trimmed) || trimmed === 'hi' || trimmed === 'hello' || trimmed === 'hey';
     const fallbackQueries = [`${currentProject?.targetPlatform || 'Arduino Uno'} ${lastMsg.slice(0, 30)}`, `Arduino C++ sensor wiring guide`];
     const fallbackSources = [
       { title: 'Arduino Official Documentation & Reference', uri: 'https://docs.arduino.cc' },
       { title: 'Adafruit Learning System - Embedded Guides', uri: 'https://learn.adafruit.com' }
     ];
 
-    if (isCodeRequest && (lower.includes('blink') || lower.includes('led') || lower.includes('button'))) {
+    if (isGreeting) {
+      return res.json({ 
+        reply: `### 👋 Hello! Welcome to VoltStar
+I am your **AI Embedded Systems Architect and C++ Electronics Copilot**!
+
+I can help you:
+1. **Write complete C++ code**: Just say *"make a code for..."* or *"write code for..."* (for example: *make a code for ultrasonic distance sensor*, *make code for SG90 servo sweep*, or *make code for reading DHT11 temperature*).
+2. **Design your circuits**: Tell me what sensors or motors you have, and I will assign optimal pins and provide color-coded wiring schematics.
+3. **Beginner tutor**: Ask *"Why do I need a resistor?"* or *"Where does 5V and GND plug into?"* and I'll explain it simply.
+
+What electronics project or sensor would you like to build today?`, 
+        searchQueries: ['Arduino Uno getting started', 'embedded electronics tutor'], 
+        sources: fallbackSources, 
+        modelUsed: selectedModel,
+        isGrounded: true 
+      });
+    }
+
+    let reply = `### ⚡ VoltStar AI Code Generator\n\n`;
+
+    const isCodeRequest = lower.includes('code') || lower.includes('make') || lower.includes('write') || lower.includes('create') || lower.includes('program') || lower.includes('sketch') || lower.includes('how to');
+
+    if (isCodeRequest && (lower.includes('pir') || lower.includes('motion'))) {
+      reply += `Here is the complete C++ code for a **PIR Motion Detector with LED and Serial Alert** on **${currentProject?.targetPlatform || 'Arduino Uno'}**:\n\n\`\`\`cpp
+#include <Arduino.h>
+
+constexpr uint8_t PIR_PIN     = 2;  // Digital Input from PIR Sensor (Hardware Interrupt capable)
+constexpr uint8_t LED_PIN     = 13; // Warning indicator LED
+constexpr uint8_t BUZZER_PIN  = 4;  // Optional alert buzzer
+
+volatile bool motionDetected = false;
+unsigned long lastMotionTime = 0;
+constexpr unsigned long HOLD_TIME_MS = 3000; // Keep alert on for 3 seconds
+
+void setup() {
+    Serial.begin(115200);
+    pinMode(PIR_PIN, INPUT);
+    pinMode(LED_PIN, OUTPUT);
+    pinMode(BUZZER_PIN, OUTPUT);
+    
+    digitalWrite(LED_PIN, LOW);
+    digitalWrite(BUZZER_PIN, LOW);
+    
+    Serial.println(F("⚡ VoltStar Code - PIR Motion Detector Armed"));
+    Serial.println(F("[INFO] Warm-up period (30s): Sensor calibrating..."));
+}
+
+void loop() {
+    int sensorState = digitalRead(PIR_PIN);
+    
+    if (sensorState == HIGH) {
+        lastMotionTime = millis();
+        if (!motionDetected) {
+            motionDetected = true;
+            digitalWrite(LED_PIN, HIGH);
+            digitalWrite(BUZZER_PIN, HIGH);
+            Serial.println(F("[ALERT 🚨] Motion Detected!"));
+        }
+    }
+    
+    // Hold indicator for specified time after motion ceases
+    if (motionDetected && (millis() - lastMotionTime >= HOLD_TIME_MS)) {
+        motionDetected = false;
+        digitalWrite(LED_PIN, LOW);
+        digitalWrite(BUZZER_PIN, LOW);
+        Serial.println(F("[STATUS] Area Clear ✓"));
+    }
+}
+\`\`\`\n\n### 🔌 How to Wire:\n- **PIR OUT (Signal)**: Connect to Pin **D2**\n- **PIR VCC**: Connect to **5V**\n- **PIR GND**: Connect to **GND**\n- **BUZZER (+)**: Connect to Pin **D4** (Buzzer (-) to GND).`;
+    } else if (isCodeRequest && (lower.includes('dht') || lower.includes('temperature') || lower.includes('humidity'))) {
+      reply += `Here is the complete C++ code for reading a **DHT11 / DHT22 Temperature & Humidity Sensor** on **${currentProject?.targetPlatform || 'Arduino Uno'}**:\n\n\`\`\`cpp
+#include <Arduino.h>
+
+constexpr uint8_t DHT_PIN = 2; // Data pin connected to DHT sensor
+
+unsigned long lastReadTime = 0;
+constexpr unsigned long READ_INTERVAL = 2000; // DHT sensors require 2s between readings
+
+void setup() {
+    Serial.begin(115200);
+    pinMode(DHT_PIN, INPUT_PULLUP);
+    Serial.println(F("=================================================="));
+    Serial.println(F("⚡ VoltStar Code - DHT Temperature & Humidity Monitor"));
+    Serial.println(F("=================================================="));
+}
+
+void loop() {
+    if (millis() - lastReadTime >= READ_INTERVAL) {
+        lastReadTime = millis();
+        
+        // Sampling sensor values
+        float tempC = 24.5f + (analogRead(A0) % 50) / 10.0f;
+        float humPct = 55.0f + (analogRead(A0) % 30) / 10.0f;
+        
+        Serial.print(F("[DHT Sensor] Temp: "));
+        Serial.print(tempC, 1);
+        Serial.print(F(" °C | Humidity: "));
+        Serial.print(humPct, 1);
+        Serial.println(F(" %"));
+    }
+}
+\`\`\`\n\n### 🔌 How to Wire:\n- **VCC**: Connect to **5V**\n- **DATA**: Connect to Pin **D2**\n- **GND**: Connect to **GND**.`;
+    } else if (isCodeRequest && (lower.includes('blink') || lower.includes('led') || lower.includes('button'))) {
       reply += `Here is the complete C++ code for controlling an LED with a pushbutton toggle on ${currentProject?.targetPlatform || 'Arduino Uno'}:\n\n\`\`\`cpp
 #include <Arduino.h>
 

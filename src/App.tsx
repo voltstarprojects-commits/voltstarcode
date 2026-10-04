@@ -27,6 +27,7 @@ export default function App() {
   const [isCompiling, setIsCompiling] = useState(false);
   const [diagnostics, setDiagnostics] = useState<Diagnostic[]>([]);
   const [showWelcomeBanner, setShowWelcomeBanner] = useState(true);
+  const [mobileSplitTab, setMobileSplitTab] = useState<'code' | 'wiring'>('code');
 
   // Analyze code whenever code changes
   useEffect(() => {
@@ -107,7 +108,7 @@ export default function App() {
   };
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#070b14] text-[#e0e7ff]">
+    <div className="flex flex-col h-[100dvh] min-h-[100dvh] max-h-[100dvh] w-screen overflow-hidden bg-[#070b14] text-[#e0e7ff]">
       {/* Top Header Navbar */}
       <Header
         currentPlatform={project.targetPlatform}
@@ -124,27 +125,27 @@ export default function App() {
 
       {/* Beginner Welcome Banner (Dismissible) */}
       {showWelcomeBanner && (
-        <div className="bg-gradient-to-r from-blue-950 via-[#0c1833] to-[#070b14] border-b border-blue-500/30 px-4 py-2 flex items-center justify-between text-xs select-none">
-          <div className="flex items-center space-x-2.5">
-            <span className="w-5 h-5 rounded-full bg-blue-500/20 text-cyan-400 flex items-center justify-center font-bold text-[11px] border border-blue-400/40">
+        <div className="bg-gradient-to-r from-blue-950 via-[#0c1833] to-[#070b14] border-b border-blue-500/30 px-3 py-1.5 sm:px-4 sm:py-2 flex items-center justify-between text-xs select-none flex-shrink-0">
+          <div className="flex items-center space-x-2">
+            <span className="w-5 h-5 rounded-full bg-blue-500/20 text-cyan-400 flex items-center justify-center font-bold text-[11px] border border-blue-400/40 flex-shrink-0">
               ⚡
             </span>
-            <span className="font-semibold text-white">New to Arduino & Electronics?</span>
-            <span className="hidden sm:inline text-blue-200">
+            <span className="font-semibold text-white text-[11px] sm:text-xs">New to Arduino & C++?</span>
+            <span className="hidden md:inline text-blue-200 text-[11px]">
               VoltStar Code automatically routes pins and provides color-coded wiring schematics.
             </span>
             <button
               onClick={() => setIsBeginnerGuideOpen(true)}
-              className="text-cyan-300 font-bold underline hover:text-cyan-200 flex items-center space-x-0.5 ml-1"
+              className="text-cyan-300 font-bold underline hover:text-cyan-200 flex items-center space-x-0.5 ml-1 text-[11px] sm:text-xs"
             >
-              <span>Read the 5-Minute Beginner Guide</span>
+              <span>5-Min Beginner Guide</span>
               <ChevronRight className="w-3 h-3" />
             </button>
           </div>
 
           <button
             onClick={() => setShowWelcomeBanner(false)}
-            className="p-1 text-slate-400 hover:text-white rounded hover:bg-blue-900/40"
+            className="p-1 text-slate-400 hover:text-white rounded hover:bg-blue-900/40 flex-shrink-0"
             title="Dismiss"
           >
             <X className="w-3.5 h-3.5" />
@@ -156,22 +157,48 @@ export default function App() {
       <main className="flex-1 flex overflow-hidden relative">
         {/* VIEW 1: SPLIT VIEW (Code + Wiring) */}
         {activeView === 'split' && (
-          <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 h-full overflow-hidden">
-            {/* Left Column: Code Editor */}
-            <div className="lg:col-span-6 xl:col-span-6 h-full overflow-hidden border-r border-blue-950/70">
-              <CodeEditor
-                code={project.code}
-                onChange={handleCodeChange}
-                diagnostics={diagnostics}
-                onApplyFix={handleApplyFix}
-                platform={project.targetPlatform}
-                projectTitle={project.projectTitle}
-              />
+          <div className="flex-1 flex flex-col h-full overflow-hidden">
+            {/* Mobile Sub-Switcher (< lg screens) */}
+            <div className="flex lg:hidden bg-[#050812] border-b border-blue-950 px-3 py-1.5 justify-between items-center text-xs flex-shrink-0">
+              <span className="text-slate-400 font-medium text-[11px]">View on Mobile:</span>
+              <div className="flex bg-[#0b1324] p-0.5 rounded-lg border border-blue-900/60">
+                <button
+                  onClick={() => setMobileSplitTab('code')}
+                  className={`px-3 py-1 rounded text-xs font-semibold transition-colors ${
+                    mobileSplitTab === 'code' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  💻 Code Editor
+                </button>
+                <button
+                  onClick={() => setMobileSplitTab('wiring')}
+                  className={`px-3 py-1 rounded text-xs font-semibold transition-colors ${
+                    mobileSplitTab === 'wiring' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  🔌 Wiring Studio
+                </button>
+              </div>
             </div>
 
-            {/* Right Column: Interactive Wiring Studio */}
-            <div className="lg:col-span-6 xl:col-span-6 h-full overflow-hidden">
-              <WiringStudio project={project} />
+            {/* Content area: dual column on desktop, selected tab on mobile */}
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 h-full overflow-hidden">
+              {/* Left Column: Code Editor */}
+              <div className={`${mobileSplitTab === 'code' ? 'block' : 'hidden'} lg:block lg:col-span-6 xl:col-span-6 h-full overflow-hidden border-r border-blue-950/70`}>
+                <CodeEditor
+                  code={project.code}
+                  onChange={handleCodeChange}
+                  diagnostics={diagnostics}
+                  onApplyFix={handleApplyFix}
+                  platform={project.targetPlatform}
+                  projectTitle={project.projectTitle}
+                />
+              </div>
+
+              {/* Right Column: Interactive Wiring Studio */}
+              <div className={`${mobileSplitTab === 'wiring' ? 'block' : 'hidden'} lg:block lg:col-span-6 xl:col-span-6 h-full overflow-hidden`}>
+                <WiringStudio project={project} />
+              </div>
             </div>
           </div>
         )}

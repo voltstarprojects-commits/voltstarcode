@@ -226,8 +226,8 @@ export const BeginnerGuideModal: React.FC<BeginnerGuideModalProps> = ({
   const CurrentIcon = STEPS[currentStep].icon;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-150">
-      <div className="relative w-full max-w-2xl bg-[#0a101f] border border-blue-500/40 rounded-2xl shadow-2xl overflow-hidden text-slate-200 flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-150">
+      <div className="relative w-full max-w-2xl bg-[#0a101f] border border-blue-500/40 rounded-2xl shadow-2xl overflow-hidden text-slate-200 flex flex-col max-h-[92dvh]">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 bg-[#070b16] border-b border-slate-800">
           <div className="flex items-center space-x-3">
